@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which platform? On-premises, cloud and third party</title>
+<style>
+:root{--ink:#14263a;--paper:#f2f6fa;--line:#cddae5;--blue:#1d63a8;--teal:#0f7d77;--purple:#6a4fb3;--slate:#3d4f61;--amber:#b45f06;--green:#1b7a3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 56px}
+header{margin-bottom:16px}
+h1{font-size:1.5rem;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
+.stats{display:flex;gap:22px;font-size:.95rem;color:#3f566c}
+.stats b{color:var(--ink)}
+#bar{height:6px;background:#dbe5ee;border-radius:3px;margin-top:10px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:var(--ink)}
+@media (prefers-reduced-motion:no-preference){#bar i{transition:width .35s}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px}
+h2{font-size:1.3rem;line-height:1.35;margin:0 0 14px;font-weight:650;outline:none}
+.prompt{max-width:60ch}
+.meta{margin:0 0 10px;color:#3f566c;font-size:.95rem}
+.gl{margin:18px 0 8px;font-weight:600}
+.row2{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;min-height:48px;padding:10px 20px;border-radius:10px;cursor:pointer}
+.ch{--c:var(--slate);background:#fff;color:var(--c);border:2px solid var(--c)}
+.ch[data-v=on]{--c:var(--blue)}.ch[data-v=cl]{--c:var(--teal)}.ch[data-v=tp]{--c:var(--purple)}
+.ch.sel{background:var(--c);color:#fff}
+.ch.no{border-style:dashed;text-decoration:line-through;background:#fff;color:var(--c)}
+.ch:disabled{cursor:default}.ch:disabled:not(.sel){opacity:.45}
+.go{background:var(--ink);color:#fff;border:0;margin-top:22px}
+.go:disabled{opacity:.4;cursor:default}
+.link{background:none;border:0;color:#3f566c;text-decoration:underline;font-weight:400;min-height:44px;padding:0 10px;margin-left:8px}
+:focus-visible{outline:3px solid #f2a900;outline-offset:2px}
+.fb{margin-top:20px;padding:14px 16px;border-left:5px solid var(--ink);background:#f6f9fc;border-radius:0 10px 10px 0;outline:none}
+.fb p{margin:0 0 8px}
+.fb.good{border-color:var(--green)}.fb.bad{border-color:var(--amber)}
+.cri{margin:10px 0 0}
+.cri div{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.cri dt{font-weight:650}.cri dd{margin:0}
+.pill{display:inline-block;padding:2px 12px;border-radius:99px;color:#fff;font-weight:600;font-size:.9rem}
+.p-on{background:var(--blue)}.p-cl{background:var(--teal)}.p-tp{background:var(--purple)}.p-in{background:var(--slate)}
+.tagline{margin:0 0 8px}
+.key{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:.95rem;color:#3f566c}
+.key div{display:flex;gap:8px;margin:2px 0}.key dt{font-weight:650;min-width:100px;color:var(--ink)}.key dd{margin:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.two>div{border-top:4px solid var(--ink);padding-top:8px}
+.two h3{margin:0 0 6px;font-size:1.05rem}.two p{margin:6px 0}
+.rw{display:grid;grid-template-columns:160px 1fr 44px;gap:10px;align-items:center;margin:8px 0}
+.track{height:10px;background:#e3ebf2;border-radius:5px;overflow:hidden}.track i{display:block;height:100%;background:var(--ink)}
+.big{font-size:2.6rem;font-weight:700;margin:0 0 4px;line-height:1.1}
+@media(max-width:560px){.two{grid-template-columns:1fr}.rw{grid-template-columns:120px 1fr 40px}.cri div{grid-template-columns:1fr;gap:0}.card{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Which platform?</h1>
+<div class="stats"><span>Score <b id="sc">0</b> of 20</span><span>Streak <b id="sk">0</b></span></div>
+<div id="bar"><i></i></div>
+</header>
+<main id="stage"></main>
+</div>
+<script>
+const S=[
+{s:"A hospital trust’s own IT team builds a patient-records system. Policy says patient data must never leave the building.",w:"on",h:"in",hw:"Where does the policy say the data has to stay?",hh:"Who is building the system: the trust or a supplier?",x:"The trust builds it and hosts it on its own servers, so it controls both the code and where the data lives.",c:"Full control over where data sits and how the system behaves.",r:"Unpatched or unsupported systems can be hit by malware, so patching must never slip.",i:"The trust must keep the skills and staff to run, patch and secure the hardware itself."},
+{s:"A law firm’s developers build an internal document search and host it on servers in the firm’s own office.",w:"on",h:"in",hw:"Think about whose servers it runs on.",hh:"Who wrote and maintains the software?",x:"Own developers, own servers: the firm controls the software and the hardware.",c:"Confidential documents stay on equipment the firm physically controls.",r:"A fire, flood or power failure in one room could take it down without a tested recovery plan.",i:"Capacity is fixed by what the firm buys, so growth means buying and installing more hardware."},
+{s:"A financial firm licenses a specialist trading platform from a supplier and installs it in its own data centre.",w:"on",h:"tp",hw:"Where is the platform installed?",hh:"Who wrote the platform and decides when it changes?",x:"The hosting is the firm’s own, but the software belongs to the supplier, so the supplier controls the code and updates.",c:"A mature, specialist product without having to build it.",r:"If the supplier drops the product or its support, the firm is left running software nobody maintains.",i:"The firm pays licence fees and follows the supplier’s upgrade terms, while still running the hardware itself."},
+{s:"A school installs licensed management software on a server in its own building.",w:"on",h:"tp",hw:"Whose building is the server in?",hh:"Who made the software?",x:"The school hosts it, but a supplier owns and controls the software.",c:"Data stays on site, and the system works without relying on the supplier’s servers.",r:"A small IT team may fall behind on updates, leaving known weaknesses open.",i:"The school depends on the supplier for features and support, and still handles backups and hardware."},
+{s:"A retailer’s own developers build a shop app on a major cloud provider so it can cope with seasonal sales spikes.",w:"cl",h:"in",hw:"Does the retailer own the servers, or rent them?",hh:"Who builds and configures the app?",x:"The provider supplies the hardware, but the retailer writes and configures the app, so it controls the software.",c:"Capacity can rise for a sales peak and fall afterwards, paying only for what is used.",r:"A misconfigured setting, such as an open storage bucket, can expose customer data.",i:"Security is shared: the provider secures the platform, but the retailer owns its configuration, access and data."},
+{s:"A logistics firm’s engineers build a global database on a cloud platform so depots in several countries can use it.",w:"cl",h:"in",hw:"Where does the database run?",hh:"Who designs and manages it?",x:"Cloud hosting, in-house control: the engineers decide how it is built and run.",c:"Reach many regions quickly without building data centres abroad.",r:"Costs can climb unexpectedly if usage is not monitored.",i:"The firm needs cloud cost and security skills, and must consider where data is stored for legal reasons."},
+{s:"A marketing start-up with no developers subscribes to an online AI content tool.",w:"cl",h:"tp",hw:"Is anything installed or hosted by the start-up?",hh:"Who built, runs and updates the tool?",x:"The vendor builds, hosts and updates it. The start-up only uses it.",c:"Live in minutes, with no build or hosting effort.",r:"Content entered may be stored or used by the vendor in ways the start-up didn’t intend.",i:"Ongoing subscription costs on the vendor’s terms, and the start-up is still responsible for the data it enters."},
+{s:"An HR team uses a hosted low-code tool to automate emails to new starters.",w:"cl",h:"tp",hw:"Does the HR team run any servers?",hh:"Who controls the platform’s features and changes?",x:"HR builds a workflow, but the platform is hosted and controlled by a vendor.",c:"Non-developers can build automations quickly.",r:"Personal data passes through the vendor, so a breach on their side affects the employer.",i:"Under UK GDPR the employer stays responsible for that data, so it needs a processing agreement and an exit plan."}
+];
+const T=[
+{t:"Scale up for a seasonal spike within minutes.",a:"Capability",m:"Cloud",e:"Cloud capacity can be added and removed on demand, so you pay for peaks only when they happen."},
+{t:"A misconfigured storage setting exposes customer data.",a:"Risk",m:"Cloud",e:"It depends on how carefully the customer configures access, so it might happen but isn’t certain."},
+{t:"Your own staff must patch and secure the hardware.",a:"Implication",m:"On-premises",e:"Owning the hardware means owning its upkeep. This comes with the choice whether or not anything goes wrong."},
+{t:"The vendor raises prices or retires the product.",a:"Risk",m:"Third party",e:"Pricing and product decisions sit with the vendor, so this might happen at any time."},
+{t:"You stay legally responsible for personal data a vendor processes for you.",a:"Implication",m:"Third party",e:"Handing data to a supplier doesn’t hand over your legal duties. This comes with the choice."},
+{t:"A ready-made tool can be live within days.",a:"Capability",m:"Third party",e:"Not building or hosting anything yourself is what makes this fast. It is what a third-party tool lets you do."},
+{t:"You decide exactly where data is stored and who can reach it.",a:"Capability",m:"On-premises",e:"Running on your own servers gives you direct say over data location and access."},
+{t:"An outage at the provider takes your service offline.",a:"Risk",m:"Cloud",e:"Outages are uncommon but possible, and you rely on the provider to fix them."},
+{t:"Growing capacity means buying and installing more hardware.",a:"Implication",m:"On-premises",e:"Fixed hardware means growth has to be planned, bought and installed. It comes with the choice."},
+{t:"You need cloud cost-management skills.",a:"Implication",m:"Cloud",e:"Paying by usage means someone has to watch spending. It comes with the choice."},
+{t:"The vendor changes how its model behaves and your workflow breaks.",a:"Risk",m:"Third party",e:"Updates happen on the vendor’s schedule, so behaviour can change without your agreement."},
+{t:"You get specialist expertise you couldn’t easily build or hire.",a:"Capability",m:"Third party",e:"A supplier can offer specialist knowledge and mature features that would be costly to build in-house."}
+];
+const WL={on:"On-premises",cl:"Cloud"},HL={in:"In-house",tp:"Third party"},PC={"On-premises":"on","Cloud":"cl","Third party":"tp"};
+const KEY="k8-platform-quiz-v1",$=s=>document.querySelector(s),app=$("#stage");
+const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+let saved=load(),view="intro",q=[],i=0,score=0,streak=0,att=0,pick={bad:[]},fb=null,done=false,foc=null,stats={};
+
+function newGame(){q=[...sh(S).map(o=>({k:"s",o})),...sh(T).map(o=>({k:"t",o}))];i=0;score=0;streak=0;att=0;pick={bad:[]};fb=null;done=false;stats={where:[0,0],who:[0,0],Capability:[0,0],Risk:[0,0],Implication:[0,0]};view="q";foc="#p";render()}
+function hdr(){$("#sc").textContent=fmt(score);$("#sk").textContent=streak;$("#bar i").style.width=(view==="q"?(i+(done?1:0))/q.length*100:view==="res"?100:0)+"%"}
+function render(){hdr();app.innerHTML=view==="intro"?introH():view==="res"?resH():qH();const f=foc&&$(foc);foc=null;if(f)f.focus()}
+
+function introH(){const b=saved.best!=null;return `<div class="card"><h2 id="p" tabindex="-1">Where does it run, and who controls it?</h2>
+<p>Every system can be described by two separate questions. Mixing them up is the most common mistake on this topic.</p>
+<div class="two"><div><h3>Where does it run?</h3><p><span class="pill p-on">On-premises</span> on servers you own and look after.</p><p><span class="pill p-cl">Cloud</span> on servers a provider runs for you.</p></div>
+<div><h3>Who controls it?</h3><p><span class="pill p-in">In-house</span> your team builds and manages the software.</p><p><span class="pill p-tp">Third party</span> a supplier builds, owns and changes it.</p></div></div>
+<p>So a tool can be cloud and third party, or on-premises and third party.</p>
+<p><strong>Round 1</strong> has eight scenarios. Answer both questions for each.<br><strong>Round 2</strong> has twelve statements. Decide whether each is a capability, a risk or an implication.</p>
+<p>A first-try answer earns a full point, a second try earns half, and you get an explanation either way. The top score is 20.</p>
+${b?`<p>Your best score: <strong>${fmt(saved.best)}</strong> out of 20.</p>`:""}
+<button class="go" data-act="start">Start round 1</button>${b?`<button class="link" data-act="clear">Clear saved scores</button>`:""}</div>`}
+
+function grp(k,l,opts){return `<div role="group" aria-label="${l}"><p class="gl">${l}</p><div class="row2">`+opts.map(([v,t])=>{const s=pick[k]===v;let c="ch"+(s?" sel":"");if(fb&&!done&&!fb.ok&&s&&fb[k]===false)c+=" no";return `<button class="${c}" data-act="${k}" data-v="${v}" aria-pressed="${s}"${done?" disabled":""}>${t}</button>`}).join("")+`</div></div>`}
+function cri(o){return `<dl class="cri"><div><dt>Capability</dt><dd>${o.c}</dd></div><div><dt>Risk</dt><dd>${o.r}</dd></div><div><dt>Implication</dt><dd>${o.i}</dd></div></dl>`}
+function fbH(){if(!fb)return "";const it=q[i],o=it.o;let t,c;
+if(it.k==="s"){
+ if(fb.ok){c="good";t=`<p><strong>${att===1?"Correct.":"Correct on the second try, half a point."}</strong> ${o.x}</p>`+cri(o)}
+ else if(fb.reveal){c="";t=`<p><strong>The answer: ${WL[o.w]}, ${HL[o.h].toLowerCase()}.</strong> ${o.x}</p>`+cri(o)}
+ else{c="bad";t=`<p><strong>Not quite.</strong> ${!fb.w?"Check where it runs. "+o.hw+" ":""}${!fb.h?"Check who controls it. "+o.hh:""}</p><p>You have one more try for half a point.</p>`}
+}else{
+ if(fb.ok){c="good";t=`<p><strong>${att===1?"Correct.":"Correct on the second try, half a point."}</strong> ${o.e}</p>`}
+ else if(fb.reveal){c="";t=`<p><strong>It is a ${o.a.toLowerCase()}.</strong> ${o.e}</p>`}
+ else{c="bad";t=`<p><strong>Not quite.</strong> Ask whether it lets you do something, might go wrong, or comes with the choice either way.</p><p>You have one more try for half a point.</p>`}
+}
+return `<div class="fb ${c}" id="fb" tabindex="-1" role="status">${t}</div>`}
+
+function qH(){const it=q[i],o=it.o,n=i+1;let h;
+if(it.k==="s"){
+ h=`<p class="meta">Round 1: where and who. Scenario ${n} of 8</p><h2 class="prompt" id="p" tabindex="-1">${o.s}</h2>`+grp("w","Where does it run?",[["on","On-premises"],["cl","Cloud"]])+grp("h","Who controls it?",[["in","In-house"],["tp","Third party"]]);
+}else{
+ h=`<p class="meta">Round 2: capability, risk or implication. Statement ${n-8} of 12</p><p class="tagline">About <span class="pill p-${PC[o.m]}">${o.m}</span></p><h2 class="prompt" id="p" tabindex="-1">${o.t}</h2><div class="row2">`+["Capability","Risk","Implication"].map(a=>{const bad=pick.bad.includes(a);return `<button class="ch${bad?" no":""}${done&&a===o.a?" sel":""}" data-act="t" data-v="${a}"${done||bad?" disabled":""}>${a}</button>`}).join("")+`</div><dl class="key"><div><dt>Capability</dt><dd>What it lets you do.</dd></div><div><dt>Risk</dt><dd>Something that might go wrong.</dd></div><div><dt>Implication</dt><dd>What the choice commits you to, either way.</dd></div></dl>`;
+}
+const act=done?`<button class="go" id="next" data-act="next">${i===q.length-1?"See results":i===7?"Start round 2":"Next"}</button>`:(it.k==="s"?`<button class="go" id="chk" data-act="chk"${pick.w&&pick.h?"":" disabled"}>Check answer</button>`:"");
+return `<div class="card">${h}${fbH()}${act}</div>`}
+
+function checkS(){const o=q[i].o,wOk=pick.w===o.w,hOk=pick.h===o.h;att++;
+if(att===1){stats.where[1]++;stats.who[1]++;if(wOk)stats.where[0]++;if(hOk)stats.who[0]++}
+if(wOk&&hOk){const p=att===1?1:.5;score+=p;if(att===1)streak++;done=true;fb={ok:true}}
+else if(att>=2){streak=0;done=true;pick.w=o.w;pick.h=o.h;fb={reveal:true}}
+else{streak=0;fb={ok:false,w:wOk,h:hOk}}
+foc="#fb";render()}
+function checkT(a){const o=q[i].o,ok=a===o.a;att++;
+if(att===1){stats[o.a][1]++;if(ok)stats[o.a][0]++}
+if(ok){score+=att===1?1:.5;if(att===1)streak++;done=true;fb={ok:true}}
+else{pick.bad.push(a);streak=0;if(att>=2){done=true;fb={reveal:true}}else fb={ok:false}}
+foc="#fb";render()}
+function finish(){view="res";saved={best:Math.max(saved.best||0,score),last:{score:score,stats:stats}};save(saved);foc="#p";render()}
+
+function resH(){const pct=Math.round(score/q.length*100);
+const rows=[["where","Where it runs"],["who","Who controls it"],["Capability","Capabilities"],["Risk","Risks"],["Implication","Implications"]].map(([k,l])=>{const r=stats[k][0],t=stats[k][1];return {l:l,r:r,t:t,p:t?Math.round(r/t*100):0}});
+const weak=rows.slice().sort((a,b)=>a.p-b.p)[0];
+const msg=pct>=85?"You have a strong grip on this topic.":pct>=60?"Solid, with a few gaps to close.":"A good start. Replay and use the hints.";
+return `<div class="card"><h2 id="p" tabindex="-1">Finished</h2><p class="big">${fmt(score)} <span style="font-size:1.1rem;font-weight:400">out of 20</span></p><p>${msg}</p>
+<p class="gl">Correct on the first try</p>${rows.map(r=>`<div class="rw"><span>${r.l}</span><div class="track"><i style="width:${r.p}%"></i></div><span>${r.r}/${r.t}</span></div>`).join("")}
+<p>${weak.p===100?"A perfect first-try run. Replay to build a longer streak.":"Weakest on first tries: "+weak.l.toLowerCase()+". The scenarios and statements are shuffled each time, so replaying is good practice."}</p>
+<p>Best score so far: <strong>${fmt(saved.best)}</strong> out of 20.</p>
+<button class="go" data-act="again">Play again</button><button class="link" data-act="clear">Clear saved scores</button></div>`}
+
+app.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled)return;const a=b.dataset.act,v=b.dataset.v;
+if(a==="start"||a==="again")newGame();
+else if(a==="w"||a==="h"){pick[a]=v;app.querySelectorAll(`[data-act="${a}"]`).forEach(x=>{const s=x.dataset.v===v;x.classList.toggle("sel",s);x.classList.remove("no");x.setAttribute("aria-pressed",s)});$("#chk").disabled=!(pick.w&&pick.h)}
+else if(a==="chk")checkS();
+else if(a==="t")checkT(v);
+else if(a==="next"){if(i<q.length-1){i++;att=0;pick={bad:[]};fb=null;done=false;foc="#p";render();window.scrollTo(0,0)}else finish()}
+else if(a==="clear"){saved={};save(saved);render()}
+});
+render();
+</script>
+</body>
+</html>
